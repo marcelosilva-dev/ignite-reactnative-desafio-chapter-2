@@ -7,6 +7,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import uuid from "react-native-uuid";
 
+import { useActions } from "../../hooks/actions";
+
 import { Input } from "../../components/Form/Input";
 import { Button } from "../../components/Form/Button";
 
@@ -27,6 +29,8 @@ const schema = Yup.object().shape({
 });
 
 export function RegisterLoginData() {
+  const { resetLogins, saveLogins } = useActions();
+
   const {
     control,
     handleSubmit,
@@ -42,14 +46,7 @@ export function RegisterLoginData() {
       ...formData,
     };
 
-    const dataKey = `@passmanager:logins`;
-
-    const data = await AsyncStorage.getItem(dataKey);
-    const currentData = data ? JSON.parse(data) : [];
-
-    const dataFormatted = [...currentData, newLoginData];
-
-    await AsyncStorage.setItem(dataKey, JSON.stringify(dataFormatted));
+    await saveLogins(newLoginData);
   }
 
   return (

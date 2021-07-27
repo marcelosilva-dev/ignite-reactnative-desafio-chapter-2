@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+
+import { useActions } from "../../hooks/actions";
 
 import { SearchBar } from "../../components/SearchBar";
 import { LoginDataItem } from "../../components/LoginDataItem";
@@ -11,6 +12,8 @@ import {
   EmptyListContainer,
   EmptyListMessage,
 } from "./styles";
+import { Button } from "../../components/Form/Button";
+import { View } from "react-native";
 
 interface LoginDataProps {
   id: string;
@@ -22,27 +25,16 @@ interface LoginDataProps {
 type LoginListDataProps = LoginDataProps[];
 
 export function Home() {
+  const { getLogins, resetLogins } = useActions();
   const [searchListData, setSearchListData] = useState<LoginListDataProps>([]);
   const [data, setData] = useState<LoginListDataProps>([]);
 
   async function loadData() {
-    const dataKey = `@passmanager:logins`;
-    const response = await AsyncStorage.getItem(dataKey);
-    const logins = response ? JSON.parse(response) : [];
+    const logins = await getLogins();
 
-    if (logins.length > 0) {
-      const loginsFormatted: LoginDataProps[] = logins.map(
-        (item: LoginDataProps) => {
-          return {
-            id: item.id,
-            title: item.title,
-            email: item.email,
-            password: item.password,
-          };
-        }
-      );
-      setSearchListData(loginsFormatted);
-      setData(loginsFormatted);
+    if (logins) {
+      setSearchListData(logins);
+      setData(logins);
     }
     // Get asyncStorage data, use setSearchListData and setData
   }
@@ -55,6 +47,13 @@ export function Home() {
       loadData();
     }, [])
   );
+
+  async function handleResetLogins() {
+    await resetLogins();
+
+    setSearchListData([]);
+    setData([]);
+  }
 
   function handleFilterLoginData(search: string) {
     if (search) {
@@ -70,10 +69,26 @@ export function Home() {
 
   return (
     <Container>
-      <SearchBar
-        placeholder="Pesquise pelo nome do serviço"
-        onChangeText={(value) => handleFilterLoginData(value)}
-      />
+      <View
+        style={{
+          width: "100%",
+          flexDirection: "row",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <SearchBar
+          placeholder="Pesquise pelo nome do serviço"
+          onChangeText={(value) => handleFilterLoginData(value)}
+          style={{ width: "79%" }}
+        />
+
+        <Button
+          style={{ marginTop: 46, marginLeft: 6, paddingHorizontal: 5 }}
+          title="Limpar"
+          onPress={handleResetLogins}
+        />
+      </View>
 
       <LoginList
         keyExtractor={(item) => item.id}

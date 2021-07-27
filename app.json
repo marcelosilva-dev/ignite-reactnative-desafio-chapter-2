@@ -7,6 +7,17 @@
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
-    ]
+    ],
+    "android": {
+      "package": "io.expo.client"
+    }
+  },
+  "ios": {
+    "bundleIdentifier": "pbiDevs",
+    "buildNumber": "1.0.0"
+  },
+  "android": {
+    "package": "pbiDevs",
+    "versionCode": 1
   }
 }
